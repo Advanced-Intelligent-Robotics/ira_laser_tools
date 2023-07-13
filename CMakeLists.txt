@@ -24,12 +24,14 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(pcl_ros REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(PCL REQUIRED)
 
 set(dependencies
   rclcpp
   rclcpp_action
   rclcpp_lifecycle
+  rclcpp_components
   std_msgs
   geometry_msgs
   sensor_msgs
@@ -53,6 +55,7 @@ remove_definitions(-DDISABLE_LIBUSB-1.0)
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 
+
 add_executable(laserscan_multi_merger src/laserscan_multi_merger.cpp)
 ament_target_dependencies(laserscan_multi_merger ${dependencies})
 target_include_directories(laserscan_multi_merger PUBLIC ${EIGEN_INCLUDE_DIRS})
@@ -65,12 +68,18 @@ target_include_directories(laserscan_virtualizer PUBLIC ${EIGEN_INCLUDE_DIRS})
 target_include_directories(laserscan_virtualizer PUBLIC ${PCL_INCLUDE_DIRS})
 target_link_libraries(laserscan_virtualizer ${PCL_LIBRARIES})
 
+add_library(${PROJECT_NAME} SHARED src/laserscan_multi_merger.cpp)
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PCL_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${PCL_LIBRARIES})
+rclcpp_components_register_nodes(${PROJECT_NAME} "${PROJECT_NAME}::LaserscanMerger")
 #############
 ## Install ##
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS laserscan_multi_merger laserscan_virtualizer
+install(TARGETS ${PROJECT_NAME} laserscan_multi_merger laserscan_virtualizer
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
@@ -80,6 +89,7 @@ install(TARGETS laserscan_multi_merger laserscan_virtualizer
 install(DIRECTORY launch/
   DESTINATION share/${PROJECT_NAME}/launch
 )
+ament_export_libraries(${PROJECT_NAME})
 
 ament_export_dependencies(${dependencies})
 ament_package()

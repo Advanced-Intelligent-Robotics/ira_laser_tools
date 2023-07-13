@@ -20,10 +20,11 @@
 using namespace std;
 using namespace pcl;
 
+namespace ira_laser_tools{
 class LaserscanMerger : public rclcpp::Node
 {
 public:
-	LaserscanMerger();
+	LaserscanMerger(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 	void scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan, std::string topic);
 	void pointcloud_to_laserscan(Eigen::MatrixXf points, pcl::PCLPointCloud2 *merged_cloud);
 	rcl_interfaces::msg::SetParametersResult reconfigureCallback(const std::vector<rclcpp::Parameter> &parameters);
@@ -59,7 +60,7 @@ private:
 	string laserscan_topics;
 };
 
-LaserscanMerger::LaserscanMerger() : Node("laserscan_multi_merger")
+LaserscanMerger::LaserscanMerger(const rclcpp::NodeOptions& options) : Node("laserscan_multi_merger", options)
 {
 	this->declare_parameter<std::string>("destination_frame", "cart_frame");
 	this->declare_parameter<std::string>("cloud_destination_topic", "/merged_cloud");
@@ -325,14 +326,16 @@ void LaserscanMerger::pointcloud_to_laserscan(Eigen::MatrixXf points, pcl::PCLPo
 
 	laser_scan_publisher_->publish(output);
 }
-
+}
 int main(int argc, char **argv)
 {
 	rclcpp::init(argc, argv);
 
-	rclcpp::spin(std::make_shared<LaserscanMerger>());
+	rclcpp::spin(std::make_shared<ira_laser_tools::LaserscanMerger>());
 
 	rclcpp::shutdown();
 
 	return 0;
 }
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(ira_laser_tools::LaserscanMerger);

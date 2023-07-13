@@ -24,6 +24,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_action</depend>
   <depend>rclcpp_lifecycle</depend>
+  <depend>rclcpp_components</depend>
   <!-- Needed to work around https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=894656 on Debian Stretch -->
   <exec_depend>rosidl_default_runtime</exec_depend>
 
